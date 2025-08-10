@@ -1,4 +1,5 @@
 require("dotenv").config();
+
 const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
@@ -10,6 +11,8 @@ const passport = require("./config/passport");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// ✅ Needed so secure cookies work behind Railway's proxy
 app.set("trust proxy", 1);
 
 // Connect to database
@@ -18,17 +21,18 @@ connectDatabase();
 // Security middleware
 app.use(helmet());
 
+// ✅ Correct CORS for cross-origin cookies (Vercel frontend → Railway backend)
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
-    credentials: true,
+    origin: process.env.CLIENT_URL || "http://localhost:3000", // Must match Vercel URL exactly
+    credentials: true, // Allow sending cookies from frontend
   })
 );
 
 // Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: 100,
 });
 app.use("/api", limiter);
 
@@ -44,19 +48,22 @@ app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// Session middleware for Passport
+// ✅ Session middleware for Passport
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
+    proxy: true, // Trust proxy for secure cookies
     cookie: {
-      secure: true, // Must be 'true' for cross-site cookies
-      sameSite: "none", // Allows cookie to be sent from different domains
+      secure: process.env.NODE_ENV === "production", // HTTPS only in prod
+      httpOnly: true,
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // Cross-site cookie allowed in prod
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
     },
   })
 );
+
 // Passport middleware
 app.use(passport.initialize());
 app.use(passport.session());
