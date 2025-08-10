@@ -1,11 +1,12 @@
 import axios from "axios";
 
 const API_BASE_URL =
-  process.env.REACT_APP_API_URL || "http://localhost:5000/api";
+  process.env.REACT_APP_API_URL?.replace(/\/+$/, "") ||
+  "http://localhost:5000/api";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  withCredentials: true,
+  withCredentials: true, // Send cookies with every request
   headers: {
     "Content-Type": "application/json",
   },
@@ -14,21 +15,21 @@ const api = axios.create({
 // Request interceptor
 api.interceptors.request.use(
   (config) => {
+    // Optionally add Authorization header if token exists
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 // Response interceptor
 api.interceptors.response.use(
-  (response) => {
-    return response;
-  },
+  (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Don't redirect on login/register pages
       const currentPath = window.location.pathname;
       if (!["/login", "/register"].includes(currentPath)) {
         window.location.href = "/login";
