@@ -52,12 +52,11 @@ app.use(
     saveUninitialized: false,
     cookie: {
       secure: true, // Must be 'true' for cross-site cookies
-      sameSite: "none", // Allows the cookie to be sent cross-site
-      maxAge: 24 * 60 * 60 * 1000,
+      sameSite: "none", // Allows cookie to be sent from different domains
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
     },
   })
 );
-
 // Passport middleware
 app.use(passport.initialize());
 app.use(passport.session());
