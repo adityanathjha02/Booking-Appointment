@@ -51,8 +51,9 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      secure: true, // Must be 'true' for cross-site cookies
+      sameSite: "none", // Allows the cookie to be sent cross-site
+      maxAge: 24 * 60 * 60 * 1000,
     },
   })
 );
