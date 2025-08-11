@@ -126,8 +126,8 @@ You will need at least three terminal windows for this step.
 
 ## ✔️ Submission Checklist
 
-  * Frontend URL: **http://localhost:3000**
-  * API URL: **http://localhost:5000/api**
+  * Frontend URL: **https://booking-appointment-ten.vercel.app/login**
+  * API URL: **https://booking-appointment-production.up.railway.app/**
   * Patient: **patient@example.com / Passw0rd\!**
   * Admin: **admin@example.com / Passw0rd\!**
   * Repo URL: **https://github.com/adityanathjha02/Booking-Appointment.git**
